@@ -3,7 +3,9 @@ name = "image-generation-evaluation"
 version = "0.1.0"
 description = "Generation and assessment of images"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "dvc>=3.65.0",
+]
 
 [dependency-groups]
 dev = [
