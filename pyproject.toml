@@ -5,6 +5,7 @@ description = "Generation and assessment of images"
 requires-python = ">=3.11"
 dependencies = [
     "dvc>=3.65.0",
+    "dvc-s3>=3.2.2",
 ]
 
 [dependency-groups]
