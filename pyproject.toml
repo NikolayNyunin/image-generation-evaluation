@@ -6,12 +6,29 @@ requires-python = ">=3.11"
 dependencies = [
     "dvc>=3.65.0",
     "dvc-s3>=3.2.2",
+    "fire>=0.7.1",
+    "lightning>=2.6.0",
+    "torch>=2.5.1",
+    "torchvision>=0.20.1",
 ]
 
 [dependency-groups]
 dev = [
     "pre-commit>=4.5.1",
 ]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu121", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+    { index = "pytorch-cu121", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
 
 [tool.ruff]
 line-length = 100
