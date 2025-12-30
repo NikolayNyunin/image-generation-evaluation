@@ -2,7 +2,9 @@ from typing import Any
 
 import lightning as L  # noqa: N812
 import torch
+from lightning.pytorch.loggers import MLFlowLogger
 from torch import nn
+from torchvision.utils import make_grid
 
 
 class WGANGPModule(L.LightningModule):
@@ -14,10 +16,11 @@ class WGANGPModule(L.LightningModule):
         critic: nn.Module,
         latent_dim: int = 256,
         lr: float = 1e-4,
-        b1: float = 0.0,
-        b2: float = 0.9,
+        beta1: float = 0.0,
+        beta2: float = 0.9,
         lambda_gp: float = 10.0,
         n_critic: int = 5,
+        example_cnt: int = 5,
     ) -> None:
         """Initialize the WGANGPModule.
 
@@ -26,24 +29,30 @@ class WGANGPModule(L.LightningModule):
             critic: Critic network.
             latent_dim: Latent vector dimension. Defaults to 256.
             lr: Learning rate for Critic and Generator. Defaults to 1e-4.
-            b1: beta1 for Adam optimization. Defaults to 0.0.
-            b2: beta2 for Adam optimization. Defaults to 0.9.
+            beta1: Beta1 for Adam optimization. Defaults to 0.0.
+            beta2: Beta2 for Adam optimization. Defaults to 0.9.
             lambda_gp: Weight for GP loss. Defaults to 10.0.
             n_critic: Number of Critic optimization steps per Generator step. Defaults to 5.
+            example_cnt: Number of example images to generate at the end of epoch. Defaults to 5.
         """
         super().__init__()
+
+        self.save_hyperparameters(ignore=("generator", "critic"))
 
         self.generator = generator
         self.critic = critic
 
-        self.latent_dim = latent_dim
-        self.lr = lr
-        self.b1 = b1
-        self.b2 = b2
-        self.lambda_gp = lambda_gp
-        self.n_critic = n_critic
+        # Fixed random noise for generating example images
+        self.fixed_noise: torch.Tensor | None = None
 
         self.automatic_optimization = False
+
+    def on_fit_start(self) -> None:
+        """Initialize the fixed noise for example generation."""
+
+        self.fixed_noise = torch.randn(
+            self.hparams.example_cnt, self.hparams.latent_dim, device=self.device
+        )
 
     def compute_gradient_penalty(
         self, real_data: torch.Tensor, fake_data: torch.Tensor
@@ -68,9 +77,9 @@ class WGANGPModule(L.LightningModule):
 
         gradients = gradients.view(batch_size, -1)
 
-        return ((gradients.norm(2, dim=1) - 1) ** 2).mean() * self.lambda_gp
+        return ((gradients.norm(2, dim=1) - 1) ** 2).mean() * self.hparams.lambda_gp
 
-    def training_step(self, batch: Any, batch_idx: int):
+    def training_step(self, batch: Any, batch_idx: int) -> None:
         """One step of training the model."""
 
         real_images, _ = batch
@@ -78,7 +87,7 @@ class WGANGPModule(L.LightningModule):
 
         opt_g, opt_c = self.optimizers()
 
-        noise = torch.randn(batch_size, self.latent_dim, device=self.device)
+        noise = torch.randn(batch_size, self.hparams.latent_dim, device=self.device)
         fake_images = self.generator(noise)
 
         c_real = self.critic(real_images).mean()
@@ -97,8 +106,8 @@ class WGANGPModule(L.LightningModule):
         self.log("critic/fake", c_fake, prog_bar=False)
         self.log("critic/gp", gp, prog_bar=False)
 
-        if (self.global_step + 1) % self.n_critic == 0:
-            noise = torch.randn(batch_size, self.latent_dim, device=self.device)
+        if (self.global_step + 1) % self.hparams.n_critic == 0:
+            noise = torch.randn(batch_size, self.hparams.latent_dim, device=self.device)
             fake_images = self.generator(noise)
 
             g_loss = -self.critic(fake_images).mean()
@@ -109,18 +118,36 @@ class WGANGPModule(L.LightningModule):
 
             self.log("loss/generator", g_loss, prog_bar=True)
 
+    def on_train_epoch_end(self) -> None:
+        """Generate images at the end of every training epoch."""
+
+        # Generate images only if there is somewhere to save them
+        if isinstance(self.logger, MLFlowLogger):
+            with torch.no_grad():
+                example_images = self.generator(self.fixed_noise)
+
+            grid = make_grid(example_images, nrow=self.hparams.example_cnt, normalize=True)
+
+            self.logger.experiment.log_image(
+                run_id=self.logger.run_id,
+                image=grid.cpu().permute(1, 2, 0).numpy(),
+                # key="generation_examples",
+                # step=self.global_step,  # Using `key` and `step` is bugged unfortunately
+                artifact_file=f"images/generation_examples/epoch_{self.current_epoch}.png",
+            )
+
     def configure_optimizers(self) -> tuple[torch.optim.Optimizer, torch.optim.Optimizer]:
         """Configure optimizers for Generator and Critic."""
 
         opt_g = torch.optim.Adam(
             self.generator.parameters(),
-            lr=self.lr,
-            betas=(self.b1, self.b2),
+            lr=self.hparams.lr,
+            betas=(self.hparams.beta1, self.hparams.beta2),
         )
         opt_c = torch.optim.Adam(
             self.critic.parameters(),
-            lr=self.lr,
-            betas=(self.b1, self.b2),
+            lr=self.hparams.lr,
+            betas=(self.hparams.beta1, self.hparams.beta2),
         )
 
         return opt_g, opt_c

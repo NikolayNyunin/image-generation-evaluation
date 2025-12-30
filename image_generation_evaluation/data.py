@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import lightning as L  # noqa: N812
+from dvc.repo import Repo
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
@@ -49,6 +50,9 @@ class AFHQv2DataModule(L.LightningDataModule):
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]
         )
+
+        dvc_repo = Repo(".")
+        dvc_repo.pull(str(self.root_path))
 
         self.dataset = ImageFolder(root=self.root_path, transform=transform)
 

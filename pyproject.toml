@@ -14,6 +14,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mlflow>=3.8.1",
     "pre-commit>=4.5.1",
 ]
 
