@@ -12,4 +12,4 @@ logging:
   mlflow_experiment_name: WGAN-GP-${model.latent_dim}-${data.image_size}
 
 train:
-  max_epochs: 1
+  max_epochs: 10
