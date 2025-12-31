@@ -1,5 +1,6 @@
 [core]
     remote = origin
 ['remote "origin"']
-    url = s3://dvc
-    endpointurl = https://dagshub.com/NikolayNyunin/mlops-data.s3
+    url = s3://image-generation-evaluation
+    endpointurl = https://storage.yandexcloud.net
+    allow_anonymous_login = true
