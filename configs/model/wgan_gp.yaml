@@ -1,0 +1,15 @@
+name: wgan_gp
+
+latent_dim: 256
+lr: 1e-4
+beta1: 0.0
+beta2: 0.9
+lambda_gp: 10.0
+n_critic: 5
+n_example: 5
+
+logging:
+  mlflow_experiment_name: WGAN-GP-${model.latent_dim}-${data.image_size}
+
+train:
+  max_epochs: 1

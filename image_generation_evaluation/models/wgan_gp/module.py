@@ -20,7 +20,7 @@ class WGANGPModule(L.LightningModule):
         beta2: float = 0.9,
         lambda_gp: float = 10.0,
         n_critic: int = 5,
-        example_cnt: int = 5,
+        n_example: int = 5,
     ) -> None:
         """Initialize the WGANGPModule.
 
@@ -33,7 +33,7 @@ class WGANGPModule(L.LightningModule):
             beta2: Beta2 for Adam optimization. Defaults to 0.9.
             lambda_gp: Weight for GP loss. Defaults to 10.0.
             n_critic: Number of Critic optimization steps per Generator step. Defaults to 5.
-            example_cnt: Number of example images to generate at the end of epoch. Defaults to 5.
+            n_example: Number of example images to generate at the end of epoch. Defaults to 5.
         """
         super().__init__()
 
@@ -51,7 +51,7 @@ class WGANGPModule(L.LightningModule):
         """Initialize the fixed noise for example generation."""
 
         self.fixed_noise = torch.randn(
-            self.hparams.example_cnt, self.hparams.latent_dim, device=self.device
+            self.hparams.n_example, self.hparams.latent_dim, device=self.device
         )
 
     def compute_gradient_penalty(
@@ -126,7 +126,7 @@ class WGANGPModule(L.LightningModule):
             with torch.no_grad():
                 example_images = self.generator(self.fixed_noise)
 
-            grid = make_grid(example_images, nrow=self.hparams.example_cnt, normalize=True)
+            grid = make_grid(example_images, nrow=self.hparams.n_example, normalize=True)
 
             self.logger.experiment.log_image(
                 run_id=self.logger.run_id,

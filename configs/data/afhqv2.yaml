@@ -1,0 +1,6 @@
+root_path: data/AFHQv2
+image_size: 64
+batch_size: 256
+num_workers: 4
+pin_memory: true
+shuffle: true
