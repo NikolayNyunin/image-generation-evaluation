@@ -147,11 +147,16 @@ python commands.py train model.train.max_epochs=5 data.batch_size=512
 **❗ Обратите внимание, что для успешного запуска обучения НЕОБХОДИМО наличие
 запущенного MLflow-сервера по адресу http://127.0.0.1:8080 ❗**
 
+Запустить MLflow локально при установленных `dev`-зависимостях можно при помощи
+команды:
+
+```bash
+mlflow ui --host 127.0.0.1 --port 8080
+```
+
 ## Запуск генерации
 
 _\*Work in progress\*_
-
-<br>
 
 # Image Generation Quality Evaluation
 
