@@ -151,7 +151,7 @@ python commands.py train model.train.max_epochs=5 data.batch_size=512
 команды:
 
 ```bash
-mlflow ui --host 127.0.0.1 --port 8080
+mlflow ui -p 8080
 ```
 
 ## Запуск генерации

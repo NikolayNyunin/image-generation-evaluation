@@ -161,9 +161,11 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 
-# MLflow default data folders
-/mlartifacts
-/mlruns
+# MLflow default data locations
+mlruns/
+mlartifacts/
+mlruns.db
+mlflow.db
 
 # Main data folder
 /data
