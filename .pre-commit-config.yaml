@@ -29,7 +29,7 @@ repos:
           - prettier-plugin-sh@0.18.0
           - prettier-plugin-sql@0.19.2
           # for plugins see https://prettier.io/docs/plugins#community-plugins
-        args: [--print-width=80, --prose-wrap=always]
+        args: [--print-width=80, --prose-wrap=always, --end-of-line=auto]
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
