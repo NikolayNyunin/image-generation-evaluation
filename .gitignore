@@ -166,6 +166,3 @@ mlruns/
 mlartifacts/
 mlruns.db
 mlflow.db
-
-# Main data folder
-/data

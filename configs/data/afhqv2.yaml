@@ -1,4 +1,4 @@
-root_path: data/AFHQv2
+root_path: data/datasets/AFHQv2
 image_size: 64
 batch_size: 256
 num_workers: 4

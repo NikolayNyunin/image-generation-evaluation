@@ -12,7 +12,7 @@ class AFHQv2DataModule(L.LightningDataModule):
 
     def __init__(  # noqa: PLR0913
         self,
-        root_path: str | Path = Path("data/AFHQv2"),
+        root_path: str | Path = Path("data/datasets/AFHQv2"),
         image_size: int = 128,
         batch_size: int = 64,
         num_workers: int = 4,
