@@ -1,0 +1,4 @@
+global_seed: 42
+seed_workers: true
+devices: 1
+deterministic: true

@@ -13,7 +13,7 @@ from image_generation_evaluation.models.wgan_gp.module import WGANGPModule
 def train_wgan_gp(cfg: DictConfig) -> None:
     """Train the WGAN-GP model on the AFHQv2 dataset."""
 
-    L.seed_everything(cfg.global_seed, workers=cfg.seed_workers)
+    L.seed_everything(cfg.system.global_seed, workers=cfg.system.seed_workers)
 
     datamodule = AFHQv2DataModule(
         root_path=Path(cfg.data.root_path),
@@ -38,23 +38,23 @@ def train_wgan_gp(cfg: DictConfig) -> None:
 
     if cfg.logging.name == "mlflow":
         logger = MLFlowLogger(
-            experiment_name=cfg.model.logging.mlflow_experiment_name,
+            experiment_name=cfg.logging.mlflow_experiment_name,
             tracking_uri=cfg.logging.mlflow_tracking_uri,
         )
         logger.log_hyperparams(cfg.data)
-        logger.log_hyperparams(cfg.model.train)
+        logger.log_hyperparams(cfg.train)
     else:
         raise ValueError(f"Logger name '{cfg.logging.name}' not recognized")
 
     trainer = L.Trainer(
         accelerator="gpu" if torch.cuda.is_available() else "cpu",
-        devices=cfg.devices,
-        max_epochs=cfg.model.train.max_epochs,
+        devices=cfg.system.devices,
+        max_epochs=cfg.train.max_epochs,
         logger=logger,
         log_every_n_steps=cfg.train.log_every_n_steps,
         enable_checkpointing=cfg.train.enable_checkpointing,
         enable_model_summary=cfg.train.enable_model_summary,
-        deterministic=cfg.train.deterministic,
+        deterministic=cfg.system.deterministic,
     )
 
     trainer.fit(model, datamodule=datamodule)

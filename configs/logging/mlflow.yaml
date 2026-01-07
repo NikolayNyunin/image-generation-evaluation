@@ -1,3 +1,4 @@
 name: mlflow
 
+mlflow_experiment_name: ${model.name}-${model.latent_dim}-${data.image_size}
 mlflow_tracking_uri: http://127.0.0.1:8080

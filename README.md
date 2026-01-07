@@ -1,6 +1,6 @@
 # Оценка качества генерации изображений
 
-![Python](https://img.shields.io/badge/python-v3.11+-blue.svg)
+![Python](https://img.shields.io/badge/python-3.11|3.12-blue.svg)
 
 ## Оглавление
 
@@ -147,7 +147,7 @@ python commands.py train
 можно использовать команду:
 
 ```bash
-python commands.py train model.train.max_epochs=5 data.batch_size=512
+python commands.py train train.max_epochs=5 data.batch_size=512
 ```
 
 Полный список доступных гиперпараметров можно посмотреть в конфигах в папке

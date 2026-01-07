@@ -3,7 +3,7 @@ from omegaconf import DictConfig
 from image_generation_evaluation.models.wgan_gp.train import train_wgan_gp
 
 MODELS = {
-    "wgan_gp": train_wgan_gp,
+    "WGAN-GP": train_wgan_gp,
 }
 
 
